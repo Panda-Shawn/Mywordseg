@@ -1,0 +1,2 @@
+# Mywordseg
+chinese word segmentation
