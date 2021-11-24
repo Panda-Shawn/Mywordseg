@@ -6,17 +6,16 @@ from utils import *
 class hmm_model:
     def __init__(self):
         self.state_set = ['B', 'M', 'E', 'S']
-        self.trans_prob_mat = {}
-        self.emit_prob_mat = {}
-        self.init_prob_mat = {}
+        self.trans_prob_mat = {} # 状态转移概率矩阵
+        self.emit_prob_mat = {} # 发射概率矩阵
+        self.init_prob_mat = {} # 初始状态概率矩阵
         self.word_set = set()
         self.word_count_dict = {}
         self.n_line = 0
         self.path = []
         self.save_root = 'model/model_saved/hmm/'
 
-
-    #初始化所有概率矩阵
+    # 初始化参数矩阵
     def initialize_mat(self):
         for s in self.state_set:
             self.trans_prob_mat[s] = {}
@@ -25,8 +24,8 @@ class hmm_model:
             self.init_prob_mat[s] = 0.0
             self.emit_prob_mat[s] = {}
             self.word_count_dict[s] = 0
-
-    #对训练集获取状态标签
+    
+    # 获得训练集中单字符的隐含状态
     def get_state_label(self, word):
         label = []
         if len(word) == 1:
@@ -40,7 +39,7 @@ class hmm_model:
             label.append('E')
         return label
 
-    #将参数估计的概率取对数，对概率0取无穷小-3.14e+100
+    # 将各参数矩阵中统计的频数取频率，再取对数
     def get_log_prob_mat(self):
         for s in self.init_prob_mat:
             if self.init_prob_mat[s] == 0:
@@ -52,15 +51,17 @@ class hmm_model:
                 if self.trans_prob_mat[s][s_] == 0.0:
                     self.trans_prob_mat[s][s_] = -3.14e+100
                 else:
-                    self.trans_prob_mat[s][s_] = np.log(self.trans_prob_mat[s][s_] / self.word_count_dict[s])
+                    self.trans_prob_mat[s][s_] = np.log(self.trans_prob_mat[s][s_]\
+                    / self.word_count_dict[s])
         for s in self.emit_prob_mat:
             for w in self.emit_prob_mat[s]:
                 if self.emit_prob_mat[s][w] == 0.0:
                     self.emit_prob_mat[s][w] = -3.14e+100
                 else:
-                    self.emit_prob_mat[s][w] = np.log(self.emit_prob_mat[s][w] / self.word_count_dict[s])
+                    self.emit_prob_mat[s][w] = np.log(self.emit_prob_mat[s][w]\
+                    / self.word_count_dict[s])
 
-    #Viterbi算法求测试集最优状态序列
+    # 动态规划求最大概率的隐含状态序列
     def viterbi(self, line):
         rec_tab = [{}]
         path = {}
@@ -94,11 +95,14 @@ class hmm_model:
                 for s_ in self.state_set:
                     if line[i] not in self.emit_prob_mat[s]:
                         if line[i-1] not in self.emit_prob_mat[s]:
-                            log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s] + self.emit_prob_mat[s]['end']
+                            log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s]\
+                            + self.emit_prob_mat[s]['end']
                         else:
-                            log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s] + self.emit_prob_mat[s]['begin']
+                            log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s]\
+                            + self.emit_prob_mat[s]['begin']
                     else:
-                        log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s] + self.emit_prob_mat[s][line[i]]
+                        log_prob = rec_tab[i - 1][s_] + self.trans_prob_mat[s_][s]\
+                        + self.emit_prob_mat[s][line[i]]
                     items.append((log_prob,s_))
                 best_path = max(items)
                 rec_tab[i][s] = best_path[0]
@@ -108,42 +112,42 @@ class hmm_model:
         _, max_state = max([(rec_tab[len(line) - 1][s], s) for s in self.state_set])
         self.path = path[max_state]
 
-    #根据状态序列进行分词
-    def seg_line(self, line, label):
+    # 利用最优隐含状态序列
+    def seg_line(self, line, states):
         word_list = []
         start_index = -1
         start_flag = False
 
-        if len(label) != len(line):
+        if len(states) != len(line):
             return None
 
-        if len(label) == 1:
+        if len(states) == 1:
             word_list.append(line[0])
 
         else:
-            if label[-1] == 'B' or label[-1] == 'M':
-                if label[-2] == 'B' or label[-2] == 'M':
-                    label[-1] = 'E'
+            if states[-1] == 'B' or states[-1] == 'M':
+                if states[-2] == 'B' or states[-2] == 'M':
+                    states[-1] = 'E'
                 else:
-                    label[-1] = 'S'
+                    states[-1] = 'S'
 
 
-            for i in range(len(label)):
-                if label[i] == 'S':
+            for i in range(len(states)):
+                if states[i] == 'S':
                     if start_flag:
                         start_flag = False
                         word_list.append(line[start_index:i])
                     word_list.append(line[i])
-                elif label[i] == 'B':
+                elif states[i] == 'B':
                     if start_flag:
                         word_list.append(line[start_index:i])
                     start_index = i
                     start_flag = True
-                elif label[i] == 'E':
+                elif states[i] == 'E':
                     start_flag = False
                     word = line[start_index:i+1]
                     word_list.append(word)
-                elif label[i] == 'M':
+                elif states[i] == 'M':
                     continue
 
         return word_list
