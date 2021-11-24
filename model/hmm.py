@@ -141,7 +141,7 @@ class hmm_model:
                     start_flag = True
                 elif label[i] == 'E':
                     start_flag = False
-                    word = line[start_index:i + 1]
+                    word = line[start_index:i+1]
                     word_list.append(word)
                 elif label[i] == 'M':
                     continue
@@ -189,27 +189,27 @@ class hmm_model:
 
         self.get_log_prob_mat()
 
-    def load_params(self):
-        with open(os.path.join(self.save_root, 'trans_prob_mat.txt'), 'rt') as f:
+    def load_params(self, dataset_type):
+        with open(os.path.join(self.save_root, dataset_type + '_trans_prob_mat.txt'), 'rt', encoding='utf-8') as f:
             self.trans_prob_mat = eval(f.read())
 
-        with open(os.path.join(self.save_root, 'emit_prob_mat.txt'), 'rt') as f:
+        with open(os.path.join(self.save_root, dataset_type + '_emit_prob_mat.txt'), 'rt', encoding='utf-8') as f:
             self.emit_prob_mat = eval(f.read())
 
-        with open(os.path.join(self.save_root, 'init_prob_mat.txt'), 'rt') as f:
+        with open(os.path.join(self.save_root, dataset_type + '_init_prob_mat.txt'), 'rt', encoding='utf-8') as f:
             self.init_prob_mat = eval(f.read())
 
-    def save_params(self):
+    def save_params(self, dataset_type):
         if not os.path.exists(self.save_root):
             os.makedirs(self.save_root)
 
-        with open(os.path.join(self.save_root, 'trans_prob_mat.txt'), 'wt') as f:
+        with open(os.path.join(self.save_root, dataset_type + '_trans_prob_mat.txt'), 'wt', encoding='utf-8') as f:
             f.write(str(self.trans_prob_mat))
 
-        with open(os.path.join(self.save_root, 'emit_prob_mat.txt'), 'wt') as f:
+        with open(os.path.join(self.save_root, dataset_type + '_emit_prob_mat.txt'), 'wt', encoding='utf-8') as f:
             f.write(str(self.emit_prob_mat))
 
-        with open(os.path.join(self.save_root, 'init_prob_mat.txt'), 'wt') as f:
+        with open(os.path.join(self.save_root, dataset_type + '_init_prob_mat.txt'), 'wt', encoding='utf-8') as f:
             f.write(str(self.init_prob_mat))
 
     def eval(self, line):

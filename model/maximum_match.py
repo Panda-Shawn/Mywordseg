@@ -35,7 +35,6 @@ class max_match_model:
                     continue
                 end -= 1
                 continue
-            start += 1
         return result
 
     def backward(self, line):
@@ -61,7 +60,6 @@ class max_match_model:
                     continue
                 start += 1
                 continue
-            end -= 1
         return result[::-1]
     
     def bi_direction(self, line):
