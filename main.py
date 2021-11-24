@@ -48,8 +48,6 @@ def inference(input, alg):
             infer_model.train(infer_train_path)
             infer_model.save_params(infer_type)
         for line in input:
-            print(line)
-            print(infer_model.eval(line.strip()))
             res += '/'.join(infer_model.eval(line.strip())) + '\n'
 
     return res
@@ -58,7 +56,7 @@ def main():
     args = parse_args()
     if args.dataset != 'as' and args.dataset != 'pku' and args.dataset != 'cityu' and args.dataset != 'msr':
         print('The chosen dataset is not included.')
-        
+
     else:
         if args.alg != 'forward' and args.alg != 'backward' and args.alg != 'bi-direction' and args.alg != 'hmm':
             print('The chosen algorithm is not included.')
@@ -89,7 +87,9 @@ def main():
             if args.alg == 'bi-direction':
                 P, R, F = score(model.bi_direction, test_path)
     
-    print(P, R, F)
+    print(f"准确率：{P}")
+    print(f"召回率：{R}")
+    print(f"F值：{F}")
 
 if __name__ == '__main__':
     main()

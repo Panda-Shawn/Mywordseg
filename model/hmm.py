@@ -123,9 +123,9 @@ class hmm_model:
         else:
             if label[-1] == 'B' or label[-1] == 'M':
                 if label[-2] == 'B' or label[-2] == 'M':
-                    label[-1] = 'S'
-                else:
                     label[-1] = 'E'
+                else:
+                    label[-1] = 'S'
 
 
             for i in range(len(label)):
@@ -177,14 +177,9 @@ class hmm_model:
             for i in range(len(line_state)):
                 self.word_count_dict[line_state[i]] += 1
                 for s in self.state_set:
-                    try:
-                        if word_list[i] not in self.emit_prob_mat[s]:
-                            self.emit_prob_mat[s][word_list[i]] = 0.0
-                    except:
-                        print(word_list)
-                        print(line_state)
-                        print(line)
-                        print(i)
+                    if word_list[i] not in self.emit_prob_mat[s]:
+                        self.emit_prob_mat[s][word_list[i]] = 0.0
+
                 self.emit_prob_mat[line_state[i]][word_list[i]] += 1
 
         self.get_log_prob_mat()
