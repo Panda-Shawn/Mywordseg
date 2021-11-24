@@ -40,16 +40,12 @@ class ControlBoard(QMainWindow, Ui_MainWindow):
             self.textBrowser.setText("请输入正确的语句。")
 
     def HMM(self):
-        input = self.textEdit.toPlainText()
-        print(input)
-        output = inference(input, 'hmm')
-        self.textBrowser.setText(output)
-        # try:
-        #     input = self.textEdit.toPlainText()
-        #     output = inference(input, 'hmm')
-        #     self.textBrowser.setText(output)
-        # except:
-        #     self.textBrowser.setText("请输入正确的语句。")
+        try:
+            input = self.textEdit.toPlainText()
+            output = inference(input, 'hmm')
+            self.textBrowser.setText(output)
+        except:
+            self.textBrowser.setText("请输入正确的语句。")
 
 
 if __name__ == "__main__":

@@ -56,20 +56,12 @@ def inference(input, alg):
 
 def main():
     args = parse_args()
-    try:
-        if args.alg == 'forward' or args.alg == 'backward' or args.alg == 'bi-direction':
-            train_path = os.path.join(gold_root, args.dataset + '_training_words.utf8')
-            test_path = os.path.join(gold_root, args.dataset + '_test_gold.utf8')
-
-            model = max_match_model(train_path)
-            model.load_dict()
-
-            if args.alg == 'forward':
-                P, R, F = score(model.forward, test_path)
-            if args.alg == 'backward':
-                P, R, F = score(model.backward, test_path)
-            if args.alg == 'bi-direction':
-                P, R, F = score(model.bi_direction, test_path)
+    if args.dataset != 'as' and args.dataset != 'pku' and args.dataset != 'cityu' and args.dataset != 'msr':
+        print('The chosen dataset is not included.')
+        
+    else:
+        if args.alg != 'forward' and args.alg != 'backward' and args.alg != 'bi-direction' and args.alg != 'hmm':
+            print('The chosen algorithm is not included.')
         
         elif args.alg == 'hmm':
             train_path = os.path.join(train_root, args.dataset + '_training.utf8')
@@ -84,10 +76,18 @@ def main():
             P, R, F = score(model.eval, test_path)
         
         else:
-            print('The chosen algorithm is not included.')
-    except:
-        print('The chosen dataset is not included.')
+            train_path = os.path.join(gold_root, args.dataset + '_training_words.utf8')
+            test_path = os.path.join(gold_root, args.dataset + '_test_gold.utf8')
 
+            model = max_match_model(train_path)
+            model.load_dict()
+
+            if args.alg == 'forward':
+                P, R, F = score(model.forward, test_path)
+            if args.alg == 'backward':
+                P, R, F = score(model.backward, test_path)
+            if args.alg == 'bi-direction':
+                P, R, F = score(model.bi_direction, test_path)
     
     print(P, R, F)
 
